@@ -12,7 +12,9 @@ module OmniAuth
       def request_phase
         options[:scope] ||= 'basic'
         options[:response_type] ||= 'code'
-        super
+        state = (request.params['state'].nil? ? '' : '&' + request.params.slice('state').to_query)
+        session['omniauth.state'] = request.params['state']
+        redirect client.auth_code.authorize_url({:redirect_uri => callback_url }.merge(options.authorize_params)) + state
       end
 
       uid { raw_info['id'] }
